@@ -6,6 +6,8 @@ import BackgroundCanvas from "./components/BackgroundCanvas";
 import Typewriter from "./components/Typewriter";
 import { ChevronDownIcon } from "@heroicons/react/24/outline";
 
+// *** LANDING PAGE ***
+
 const Home: React.FC = () => {
   const containerRef = useRef<HTMLDivElement>(null);
 
