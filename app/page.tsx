@@ -246,7 +246,7 @@ const Home: React.FC = () => {
       </section>
 
       {/* Section 2: Features for Mobile */}
-      <section className="snap-start flex flex-col items-center justify-center min-h-screen md:hidden relative">
+      <section className="snap-start flex flex-col justify-center min-h-screen md:hidden relative">
         <div className="max-w-4xl w-full">
           <div className="flex flex-col justify-between items-stretch gap-8 px-4">
             {[
