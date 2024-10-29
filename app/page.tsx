@@ -189,7 +189,7 @@ const Home: React.FC = () => {
           {/* Social Links */}
           <div className="flex justify-center gap-8 mb-32">
             <a
-              href="https://twitter.com"
+              href="https://x.com/mockchain_xyz"
               target="_blank"
               rel="noopener noreferrer"
               className="text-gray-400 hover:text-blue-400 transition-colors duration-300"
@@ -199,7 +199,7 @@ const Home: React.FC = () => {
               </svg>
             </a>
             <a
-              href="https://discord.com"
+              href="https://discord.gg/CJepg8CC"
               target="_blank"
               rel="noopener noreferrer"
               className="text-gray-400 hover:text-indigo-400 transition-colors duration-300"
@@ -209,7 +209,7 @@ const Home: React.FC = () => {
               </svg>
             </a>
             <a
-              href="https://t.me"
+              href="https://t.me/mockchain"
               target="_blank"
               rel="noopener noreferrer"
               className="text-gray-400 hover:text-blue-500 transition-colors duration-300"
