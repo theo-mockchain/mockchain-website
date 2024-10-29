@@ -241,7 +241,7 @@ const Home: React.FC = () => {
           {/* Add bouncing arrow at the bottom */}
           <div className="absolute bottom-20 left-1/2 transform -translate-x-1/2">
             <button
-              onClick={() => handleChevronClick(1)}
+              onClick={() => handleChevronClick(0)}
               className="text-gray-400 hover:text-gray-200 transition-colors duration-300"
             >
               <ChevronDown className="w-6 h-6 animate-bounce" />
