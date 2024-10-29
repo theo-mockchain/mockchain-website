@@ -219,7 +219,7 @@ const Home: React.FC = () => {
               </svg>
             </a>
             <a
-              href="mailto:contact@mockchain.com"
+              href="mailto:hello@mockchain.com"
               className="text-gray-400 hover:text-green-400 transition-colors duration-300"
             >
               <svg
