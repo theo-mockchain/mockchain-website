@@ -99,16 +99,21 @@ const Home: React.FC = () => {
   };
 
   const handleChevronClick = (sectionIndex: number) => {
-    const nextSection = containerRef.current?.children[sectionIndex + 1];
-    if (nextSection) {
-      nextSection.scrollIntoView({ behavior: "smooth" });
+    const sections = containerRef.current?.children;
+    if (sections && sections[sectionIndex + 1]) {
+      const nextSection = sections[sectionIndex + 1] as HTMLElement;
+      const offset = nextSection.offsetTop;
+      containerRef.current?.scrollTo({
+        top: offset,
+        behavior: "smooth",
+      });
     }
   };
 
   return (
     <div
       ref={containerRef}
-      className="snap-y snap-mandatory h-screen overflow-y-scroll px-4 place-items-stretch my-8"
+      className="snap-y snap-mandatory h-screen overflow-y-scroll scroll-smooth"
     >
       {/* Section 1: Logo, Waitlist, Features, and Socials for Desktop */}
       <section className="relative min-h-screen flex flex-col items-center text-gray-300 snap-start md:flex-row md:justify-center">
@@ -236,7 +241,7 @@ const Home: React.FC = () => {
           {/* Add bouncing arrow at the bottom */}
           <div className="absolute bottom-20 left-1/2 transform -translate-x-1/2">
             <button
-              onClick={() => handleChevronClick(0)}
+              onClick={() => handleChevronClick(1)}
               className="text-gray-400 hover:text-gray-200 transition-colors duration-300"
             >
               <ChevronDown className="w-6 h-6 animate-bounce" />
@@ -246,7 +251,7 @@ const Home: React.FC = () => {
       </section>
 
       {/* Section 2: Features for Mobile */}
-      <section className="snap-start flex flex-col justify-center min-h-screen md:hidden relative">
+      <section className="snap-start flex flex-col items-center justify-center min-h-screen md:hidden relative">
         <div className="max-w-4xl w-full">
           <div className="flex flex-col justify-between items-stretch gap-8 px-4">
             {[
@@ -281,7 +286,7 @@ const Home: React.FC = () => {
           </div>
         </div>
 
-        {/* Add bouncing arrow at the bottom */}
+        {/* Move the chevron outside of the centered content */}
         <div className="absolute bottom-20 left-1/2 transform -translate-x-1/2">
           <button
             onClick={() => handleChevronClick(1)}
