@@ -1,10 +1,12 @@
 "use client";
 
-import React, { useRef } from "react";
+import React, { useRef, useState } from "react";
 import Image from "next/image";
 import BackgroundCanvas from "./components/BackgroundCanvas";
 import Typewriter from "./components/Typewriter";
 import { ChevronDown } from "lucide-react";
+import toast from "react-hot-toast";
+import { WaitlistForm } from "./components/WaitlistForm";
 
 // *** LANDING PAGE ***
 
@@ -17,6 +19,84 @@ const Home: React.FC = () => {
     "Contract simulations",
     "Contract CI/CD",
   ];
+
+  const [waitlistEmail, setWaitlistEmail] = useState("");
+  const [contactForm, setContactForm] = useState({
+    name: "",
+    email: "",
+    message: "",
+  });
+  const [status, setStatus] = useState({ loading: false, error: "" });
+
+  const isValidEmail = (email: string) => {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  };
+
+  const handleWaitlistSubmit = async () => {
+    if (!waitlistEmail) {
+      toast.error("Please enter your email");
+      return;
+    }
+
+    if (!isValidEmail(waitlistEmail)) {
+      toast.error("Please enter a valid email address");
+      return;
+    }
+
+    const toastId = toast.loading("Joining waitlist...");
+
+    try {
+      setStatus({ loading: true, error: "" });
+      const res = await fetch("/api/email", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ type: "waitlist", email: waitlistEmail }),
+      });
+
+      if (!res.ok) throw new Error("Failed to submit");
+
+      setWaitlistEmail("");
+      toast.success("Thanks for joining the waitlist!", { id: toastId });
+    } catch (error) {
+      toast.error("Failed to join waitlist. Please try again.", {
+        id: toastId,
+      });
+    } finally {
+      setStatus({ loading: false, error: "" });
+    }
+  };
+
+  const handleContactSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!contactForm.email || !contactForm.name || !contactForm.message) {
+      toast.error("Please fill in all fields");
+      return;
+    }
+
+    if (!isValidEmail(contactForm.email)) {
+      toast.error("Please enter a valid email address");
+      return;
+    }
+
+    try {
+      setStatus({ loading: true, error: "" });
+      const res = await fetch("/api/email", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ type: "contact", ...contactForm }),
+      });
+
+      if (!res.ok) throw new Error("Failed to submit");
+
+      setContactForm({ name: "", email: "", message: "" });
+      toast.success("Message sent successfully!");
+    } catch (error) {
+      toast.error("Failed to send message. Please try again.");
+    } finally {
+      setStatus({ loading: false, error: "" });
+    }
+  };
 
   const handleChevronClick = (sectionIndex: number) => {
     const nextSection = containerRef.current?.children[sectionIndex + 1];
@@ -58,40 +138,7 @@ const Home: React.FC = () => {
         <div className="flex flex-col items-center justify-center h-full">
           {/* Waitlist container */}
           <div className="text-center relative min-w-full max-w-4xl mx-auto mt-72">
-            {" "}
-            {/* Added margin-top to account for typewriter space */}
-            {/* Email input and submit button */}
-            <div className="flex flex-col sm:flex-row gap-2 max-w-md mx-auto mb-6 mt-10">
-              <input
-                type="email"
-                placeholder="Enter your email"
-                className="flex-1 px-4 py-2 rounded-md
-                  bg-slate-600/30 backdrop-blur-sm
-                  border border-gray-500/30
-                  text-white placeholder-gray-400/70
-                  focus:outline-none focus:ring-2 focus:ring-blue-500/30
-                  focus:border-transparent
-                  transition-all duration-300"
-              />
-              <button
-                onClick={() => {
-                  const email = document.querySelector(
-                    'input[type="email"]'
-                  ) as HTMLInputElement;
-                  console.log("Submitted email:", email.value);
-                }}
-                className="px-6 py-2 rounded-md
-                  bg-gradient-to-r from-blue-500/50 to-purple-500/50
-                  hover:from-blue-500/60 hover:to-purple-500/60
-                  border border-gray-500/30
-                  text-white font-medium
-                  transform hover:scale-105
-                  transition-all duration-300
-                  backdrop-blur-sm"
-              >
-                Join →
-              </button>
-            </div>
+            <WaitlistForm />
             <p className="text-gray-400/70 text-sm mb-12">
               Join the waitlist for early access
             </p>
@@ -199,24 +246,24 @@ const Home: React.FC = () => {
       </section>
 
       {/* Section 2: Features for Mobile */}
-      <section className="snap-start flex flex-col items-center justify-center min-h-screen p-8 md:hidden">
+      <section className="snap-start flex flex-col items-center justify-center min-h-screen p-8 md:hidden relative">
         <div className="max-w-4xl w-full">
           <div className="flex flex-col justify-between items-stretch gap-8 p-8">
             {[
               {
-                title: "Your blockchain everywhere",
+                title: "True-to-life stagenets",
                 description:
-                  "Distribute your blockchain across multiple networks seamlessly.",
+                  "Experience a true-to-life testing environment. Mockchain’s stagenets are private testnets that mimic mainnet with real transactions and simulated off-chain systems.",
               },
               {
-                title: "Collect all your transactions",
+                title: "Contract Simulations",
                 description:
-                  "Monitor and manage all your blockchain transactions in one place.",
+                  "Run large batches of custom and/or historical transactions through your contracts to test their performance and reliability. No config required.",
               },
               {
-                title: "Monetize on decentralized apps",
+                title: "Rapid Iteration",
                 description:
-                  "Integrate your blockchain with various decentralized applications.",
+                  "Have changes to your contracts reflected in your stagenet deployments on each push. No need for fresh deployments or upgrades.",
               },
             ].map((feature, index) => (
               <React.Fragment key={index}>
@@ -233,6 +280,16 @@ const Home: React.FC = () => {
             ))}
           </div>
         </div>
+
+        {/* Add bouncing arrow at the bottom */}
+        <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2">
+          <button
+            onClick={() => handleChevronClick(1)}
+            className="text-gray-400 hover:text-gray-200 transition-colors duration-300"
+          >
+            <ChevronDown className="w-6 h-6 animate-bounce" />
+          </button>
+        </div>
       </section>
 
       {/* Section 3: Contact Us */}
@@ -240,24 +297,40 @@ const Home: React.FC = () => {
         <div className="max-w-md w-full text-center">
           <h2 className="text-3xl font-semibold mb-8">Get in Touch</h2>
 
-          <form className="space-y-4">
+          <form onSubmit={handleContactSubmit} className="space-y-4">
             <input
               type="text"
+              value={contactForm.name}
+              onChange={(e) =>
+                setContactForm((prev) => ({ ...prev, name: e.target.value }))
+              }
               placeholder="Name"
               className="w-full p-3 bg-slate-600/30 rounded text-gray-200 placeholder-gray-400/70 focus:outline-none focus:ring-2 focus:ring-blue-500/30 hover:bg-slate-500/30 transition duration-300"
             />
             <input
               type="email"
+              value={contactForm.email}
+              onChange={(e) =>
+                setContactForm((prev) => ({ ...prev, email: e.target.value }))
+              }
               placeholder="Email"
               className="w-full p-3 bg-slate-600/30 rounded text-gray-200 placeholder-gray-400/70 focus:outline-none focus:ring-2 focus:ring-blue-500/30 hover:bg-slate-500/30 transition duration-300"
             />
             <textarea
+              value={contactForm.message}
+              onChange={(e) =>
+                setContactForm((prev) => ({ ...prev, message: e.target.value }))
+              }
               placeholder="Message"
               rows={4}
               className="w-full p-3 bg-slate-600/30 rounded text-gray-200 placeholder-gray-400/70 focus:outline-none focus:ring-2 focus:ring-blue-500/30 hover:bg-slate-500/30 transition duration-300"
             ></textarea>
-            <button className="w-full bg-slate-700/50 hover:bg-slate-600/50 text-white font-bold py-3 px-4 rounded transition duration-300">
-              Send Message
+            <button
+              type="submit"
+              disabled={status.loading}
+              className="w-full bg-slate-700/50 hover:bg-slate-600/50 text-white font-bold py-3 px-4 rounded transition duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {status.loading ? "Sending..." : "Send Message"}
             </button>
           </form>
         </div>

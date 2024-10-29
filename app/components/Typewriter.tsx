@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from "react";
 
 interface TypewriterProps {
   text: string | string[];
@@ -10,68 +10,165 @@ interface TypewriterProps {
   onComplete?: () => void;
 }
 
-const Typewriter: React.FC<TypewriterProps> = ({
+const TypewriterComponent: React.FC<TypewriterProps> = ({
   text,
   title,
   freeze = false,
   cursor = true,
   freezeCursor = false,
-  className = '',
+  className = "",
   onComplete,
 }) => {
-  const [displayText, setDisplayText] = useState('');
+  const [displayText, setDisplayText] = useState("");
   const [currentIndex, setCurrentIndex] = useState(0);
   const [showCursor, setShowCursor] = useState(true);
   const [isTitleDisplayed, setIsTitleDisplayed] = useState(false);
-  const isSingleString = typeof text === 'string';
 
-  const typeNextCharacter = useCallback((currentText: string, fullText: string, callback: () => void) => {
-    if (currentText.length < fullText.length) {
-      const nextChar = fullText[currentText.length];
-      const delay = Math.random() * 40 + 40; // Random delay between 40ms and 80ms
-      setTimeout(() => {
-        setDisplayText(currentText + nextChar);
-      }, delay);
-    } else {
-      callback();
-    }
-  }, []);
+  // Add refs to maintain state between renders
+  const timeoutRef = useRef<NodeJS.Timeout>();
+  const intervalRef = useRef<NodeJS.Timeout>();
+  const isSingleString = typeof text === "string";
 
-  useEffect(() => {
-    const fullText = !isTitleDisplayed && title ? title : (isSingleString ? text as string : (text as string[])[currentIndex]);
-    const delayAfterComplete = title && !isTitleDisplayed ? 3000 : 2000; // Longer delay for title
+  const typeNextCharacter = useCallback(
+    (currentText: string, fullText: string, callback: () => void) => {
+      if (currentText.length < fullText.length) {
+        const nextChar = fullText[currentText.length];
+        const delay = Math.random() * 40 + 40;
 
-    typeNextCharacter(displayText, fullText, () => {
-      if (title && !isTitleDisplayed) {
-        setTimeout(() => {
-          setIsTitleDisplayed(true);
-          setDisplayText('');
-        }, delayAfterComplete);
+        // Clear existing timeout
+        if (timeoutRef.current) {
+          clearTimeout(timeoutRef.current);
+        }
+
+        timeoutRef.current = setTimeout(() => {
+          setDisplayText(currentText + nextChar);
+        }, delay);
       } else {
-        setTimeout(() => {
-          setDisplayText('');
-          setCurrentIndex((prevIndex) => (prevIndex + 1) % (text as string[]).length);
-        }, delayAfterComplete);
+        callback();
       }
-    });
-  }, [displayText, text, currentIndex, title, isSingleString, typeNextCharacter, isTitleDisplayed]);
+    },
+    []
+  );
 
   useEffect(() => {
-    if (cursor && !(freezeCursor && displayText.length === (title ? title.length : (isSingleString ? (text as string).length : (text as string[])[currentIndex].length)))) {
-      const cursorInterval = setInterval(() => {
+    const fullText =
+      !isTitleDisplayed && title
+        ? title
+        : isSingleString
+        ? (text as string)
+        : (text as string[])[currentIndex];
+    const delayAfterComplete = title && !isTitleDisplayed ? 3000 : 2000;
+
+    const completeCallback = () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+
+      timeoutRef.current = setTimeout(() => {
+        if (title && !isTitleDisplayed) {
+          setIsTitleDisplayed(true);
+          setDisplayText("");
+        } else if (!freeze) {
+          setDisplayText("");
+          setCurrentIndex(
+            (prevIndex) => (prevIndex + 1) % (text as string[]).length
+          );
+        }
+      }, delayAfterComplete);
+    };
+
+    typeNextCharacter(displayText, fullText, completeCallback);
+
+    // Cleanup function
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+    };
+  }, [
+    displayText,
+    text,
+    currentIndex,
+    title,
+    isSingleString,
+    typeNextCharacter,
+    isTitleDisplayed,
+    freeze,
+  ]);
+
+  useEffect(() => {
+    if (
+      cursor &&
+      !(
+        freezeCursor &&
+        displayText.length ===
+          (title
+            ? title.length
+            : isSingleString
+            ? (text as string).length
+            : (text as string[])[currentIndex].length)
+      )
+    ) {
+      // Clear existing interval
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+      }
+
+      intervalRef.current = setInterval(() => {
         setShowCursor((prev) => !prev);
       }, 530);
 
-      return () => clearInterval(cursorInterval);
+      return () => {
+        if (intervalRef.current) {
+          clearInterval(intervalRef.current);
+        }
+      };
     }
-  }, [cursor, freezeCursor, displayText, text, currentIndex, title, isSingleString]);
+  }, [
+    cursor,
+    freezeCursor,
+    displayText,
+    text,
+    currentIndex,
+    title,
+    isSingleString,
+  ]);
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+      }
+    };
+  }, []);
 
   return (
     <span className={`font-mono text-center ${className}`}>
       {displayText}
-      {cursor && <span className={`${showCursor ? 'opacity-100' : 'opacity-0'} transition-opacity duration-100`}>_</span>}
+      {cursor && (
+        <span
+          className={`${
+            showCursor ? "opacity-100" : "opacity-0"
+          } transition-opacity duration-100`}
+        >
+          _
+        </span>
+      )}
     </span>
   );
 };
 
-export default Typewriter;
+export default React.memo(TypewriterComponent, (prevProps, nextProps) => {
+  return (
+    prevProps.text === nextProps.text &&
+    prevProps.title === nextProps.title &&
+    prevProps.freeze === nextProps.freeze &&
+    prevProps.cursor === nextProps.cursor &&
+    prevProps.freezeCursor === nextProps.freezeCursor &&
+    prevProps.className === nextProps.className
+  );
+});
