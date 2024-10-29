@@ -108,7 +108,7 @@ const Home: React.FC = () => {
   return (
     <div
       ref={containerRef}
-      className="snap-y snap-mandatory h-screen overflow-y-scroll px-4 place-items-stretch"
+      className="snap-y snap-mandatory h-screen overflow-y-scroll px-4 place-items-stretch my-8"
     >
       {/* Section 1: Logo, Waitlist, Features, and Socials for Desktop */}
       <section className="relative min-h-screen flex flex-col items-center text-gray-300 snap-start md:flex-row md:justify-center">
@@ -234,7 +234,7 @@ const Home: React.FC = () => {
           </div>
 
           {/* Add bouncing arrow at the bottom */}
-          <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2">
+          <div className="absolute bottom-20 left-1/2 transform -translate-x-1/2">
             <button
               onClick={() => handleChevronClick(0)}
               className="text-gray-400 hover:text-gray-200 transition-colors duration-300"
@@ -282,7 +282,7 @@ const Home: React.FC = () => {
         </div>
 
         {/* Add bouncing arrow at the bottom */}
-        <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2">
+        <div className="absolute bottom-20 left-1/2 transform -translate-x-1/2">
           <button
             onClick={() => handleChevronClick(1)}
             className="text-gray-400 hover:text-gray-200 transition-colors duration-300"
