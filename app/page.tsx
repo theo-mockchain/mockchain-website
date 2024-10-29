@@ -246,14 +246,14 @@ const Home: React.FC = () => {
       </section>
 
       {/* Section 2: Features for Mobile */}
-      <section className="snap-start flex flex-col items-center justify-center min-h-screen p-8 md:hidden relative">
+      <section className="snap-start flex flex-col items-center justify-center min-h-screen md:hidden relative">
         <div className="max-w-4xl w-full">
-          <div className="flex flex-col justify-between items-stretch gap-8 p-8">
+          <div className="flex flex-col justify-between items-stretch gap-8 px-4">
             {[
               {
                 title: "True-to-life stagenets",
                 description:
-                  "Experience a true-to-life testing environment. Mockchain’s stagenets are private testnets that mimic mainnet with real transactions and simulated off-chain systems.",
+                  "Experience a true-to-life testing environment. Mockchain's stagenets are private testnets that mimic mainnet with real transactions and simulated off-chain systems.",
               },
               {
                 title: "Contract Simulations",
@@ -267,14 +267,14 @@ const Home: React.FC = () => {
               },
             ].map((feature, index) => (
               <React.Fragment key={index}>
-                <div className="flex-1 text-center px-4">
-                  <h3 className="text-xl font-semibold mb-3">
+                <div className="flex-1 text-center px-2">
+                  <h3 className="text-lg font-semibold mb-2">
                     {feature.title}
                   </h3>
                   <p className="text-sm text-gray-400">{feature.description}</p>
                 </div>
                 {index < 2 && (
-                  <div className="w-full h-px bg-gradient-to-r from-transparent via-gray-700/50 to-transparent my-2"></div>
+                  <div className="w-full h-px bg-gradient-to-r from-transparent via-gray-700/50 to-transparent my-1"></div>
                 )}
               </React.Fragment>
             ))}
